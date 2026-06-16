@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/product.dart';
 import '../widgets/product_card.dart';
 import '../widgets/rate_dialog.dart';
 import '../utils/app_data.dart';
-import '../services/ad_service.dart'; // 🔥 ИМПОРТ РЕКЛАМЫ
 import 'cart_screen.dart';
 import 'product_detail_screen.dart';
 import 'favorites_screen.dart';
@@ -157,7 +155,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
-                            // ignore: deprecated_member_use
                             boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)],
                           ),
                           child: TextField(
@@ -237,16 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
           ),
           
-          // 🔥 БАННЕР GOOGLE ADS (с таймаутом и fallback)
-          SliverToBoxAdapter(
-            child: Container(
-              height: 250,
-              margin: const EdgeInsets.only(top: 8),
-              color: Colors.grey[100],
-              child: _buildAdBanner(),
-            ),
-          ),
-          
+          // 🔥 УБРАЛ БАННЕР РЕКЛАМЫ - ТЕПЕРЬ ПРОСТО ПУСТОЕ МЕСТО
           const SliverToBoxAdapter(child: SizedBox(height: 16)),
         ],
       ),
@@ -287,33 +275,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 🔥 ОТДЕЛЬНЫЙ МЕТОД ДЛЯ БАННЕРА (с таймаутом и fallback)
-  Widget _buildAdBanner() {
-    final adService = AdService();
-    
-    // Если баннер готов — показываем
-    if (adService.isBannerReady) {
-      return AdWidget(ad: adService.getBannerAd()!);
-    }
-    
-    // Если загрузка не удалась или таймаут — скрываем блок полностью
-    if (adService.shouldShowFallback) {
-      return const SizedBox.shrink(); // 🔥 Никакой бесконечной загрузки!
-    }
-    
-    // Иначе показываем индикатор (но только первые 10 секунд)
-    return const Center(
-      child: SizedBox(
-        width: 20,
-        height: 20,
-        child: CircularProgressIndicator(
-          color: Color(0xFF9C27B0),
-          strokeWidth: 2,
-        ),
-      ),
-    );
-  }
-
   Widget _buildCategoryChip(String label, int index) {
     final isSelected = _selectedCategory == index;
     return Padding(
@@ -323,7 +284,6 @@ class _HomeScreenState extends State<HomeScreen> {
         selected: isSelected,
         onSelected: (selected) => setState(() => _selectedCategory = index),
         backgroundColor: Colors.white,
-        // ignore: deprecated_member_use
         selectedColor: const Color(0xFF9C27B0).withOpacity(0.2),
         checkmarkColor: const Color(0xFF9C27B0),
         labelStyle: TextStyle(

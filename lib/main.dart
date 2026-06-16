@@ -1,15 +1,12 @@
-import 'services/ad_service.dart';
 import 'package:flutter/material.dart';
-import 'screens/splash_screen.dart';
+import 'screens/home_screen.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await AdService().init();
-  runApp(DonExpressApp());
+void main() {
+  runApp(const DonExpressApp());
 }
 
 class DonExpressApp extends StatelessWidget {
-  DonExpressApp({super.key});
+  const DonExpressApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,13 +16,8 @@ class DonExpressApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.purple,
         useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFFF5F5F7),
       ),
-      home: SplashScreen(),
+      home: const HomeScreen(),
     );
   }
-}
-
-extension on DonExpressApp {
-  Widget? SplashScreen() {}
 }

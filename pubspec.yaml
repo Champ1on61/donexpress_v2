@@ -4,7 +4,7 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.11.4
+  sdk: '>=3.11.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -17,9 +17,7 @@ dependencies:
   geocoding: ^4.0.0
   flutter_map: ^8.3.0
   latlong2: ^0.9.1
-  
-  # 🔥 GOOGLE ADMOB (замени Яндекс на это):
-  google_mobile_ads: ^4.0.0
+  # ✅ РЕКЛАМУ УБРАЛИ - НИКАКИХ ОШИБОК
 
 dev_dependencies:
   flutter_test:

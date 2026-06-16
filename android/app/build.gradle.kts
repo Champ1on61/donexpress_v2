@@ -36,5 +36,3 @@ android {
 flutter {
     source = "../.."
 }
-
-// 🔥 GOOGLE ADMOB — ЗАВИСИМОСТИ (автоматически подтягиваются)

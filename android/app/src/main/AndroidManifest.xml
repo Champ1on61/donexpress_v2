@@ -6,12 +6,12 @@
     <application
         android:label="donexpress_v2"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
-        android:usesCleartextTraffic="true">
+        android:icon="@mipmap/ic_launcher">
 
+        <!-- ЯНДЕКС РЕКЛАМА -->
         <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"/>
+            android:name="yandex_ad_network_app_id"
+            android:value="test-app-id" />
 
         <activity
             android:name=".MainActivity"
