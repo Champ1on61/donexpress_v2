@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/product.dart';
@@ -156,6 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
+                            // ignore: deprecated_member_use
                             boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)],
                           ),
                           child: TextField(
@@ -204,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 : SliverGrid(
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      childAspectRatio: 0.68,
+                      childAspectRatio: 0.65, // 🔥 УМЕНЬШИЛ чтобы карточки не переполнялись
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
                     ),
@@ -235,14 +237,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
           ),
           
-          // 🔥 БАННЕР GOOGLE ADS (добавлено)
+          // 🔥 БАННЕР GOOGLE ADS (ИСПРАВЛЕННЫЙ)
           SliverToBoxAdapter(
             child: Container(
               height: 250,
               margin: const EdgeInsets.only(top: 8),
               color: Colors.grey[100],
-              child: AdService().createBannerAd() ?? 
-                const Center(child: Text('Загрузка рекламы...', style: TextStyle(color: Colors.grey, fontSize: 12))),
+              child: _buildAdBanner(),
             ),
           ),
           
@@ -286,6 +287,38 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // 🔥 ОТДЕЛЬНЫЙ МЕТОД ДЛЯ БАННЕРА (безопасный)
+  Widget _buildAdBanner() {
+    final adService = AdService();
+    
+    // Если баннер готов — показываем
+    if (adService.isBannerReady) {
+      return AdWidget(ad: adService.getBannerAd()!);
+    }
+    
+    // Иначе показываем заглушку с индикатором
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              color: Color(0xFF9C27B0),
+              strokeWidth: 2,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Загрузка рекламы...',
+            style: TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCategoryChip(String label, int index) {
     final isSelected = _selectedCategory == index;
     return Padding(
@@ -295,6 +328,7 @@ class _HomeScreenState extends State<HomeScreen> {
         selected: isSelected,
         onSelected: (selected) => setState(() => _selectedCategory = index),
         backgroundColor: Colors.white,
+        // ignore: deprecated_member_use
         selectedColor: const Color(0xFF9C27B0).withOpacity(0.2),
         checkmarkColor: const Color(0xFF9C27B0),
         labelStyle: TextStyle(
