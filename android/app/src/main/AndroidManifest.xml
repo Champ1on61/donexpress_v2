@@ -1,8 +1,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 🔥 РАЗРЕШЕНИЯ ДЛЯ ЯНДЕКС РЕКЛАМЫ -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
     <application
         android:label="donexpress_v2"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+        <!-- 🔥 ЯНДЕКС РЕКЛАМА — APP ID (тестовый) -->
+        <meta-data
+            android:name="yandex_ad_network_app_id"
+            android:value="test-app-id" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

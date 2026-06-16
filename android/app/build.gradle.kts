@@ -37,8 +37,18 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+    // 🔥 ЯНДЕКС РЕКЛАМА — РЕПОЗИТОРИЙ
+    repositories {
+        maven { url = uri("https://android-sdk.is.yandex.net/repository/mobileads/") }
+    }
 }
 
 flutter {
     source = "../.."
+}
+
+// 🔥 ЯНДЕКС РЕКЛАМА — ЗАВИСИМОСТИ
+dependencies {
+    implementation("com.yandex.mobile.ads:mobileads:8.1.0")
 }
