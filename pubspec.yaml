@@ -41,7 +41,7 @@ dependencies:
   geocoding: ^4.0.0
   flutter_map: ^8.3.0
   latlong2: ^0.9.1
-  yandex_mobileads: ^8.1.0
+  google_mobile_ads: ^4.0.0
 
 dev_dependencies:
   flutter_test:

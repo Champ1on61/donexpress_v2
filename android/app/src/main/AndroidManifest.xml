@@ -9,10 +9,9 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
-        <!-- 🔥 ЯНДЕКС РЕКЛАМА — APP ID (тестовый) -->
         <meta-data
-            android:name="yandex_ad_network_app_id"
-            android:value="test-app-id" />
+    android:name="com.google.android.gms.ads.APPLICATION_ID"
+    android:value="ca-app-pub-3940256099942544~3347511713"/>
 
         <activity
             android:name=".MainActivity"
