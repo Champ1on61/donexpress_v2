@@ -14,8 +14,10 @@ class AdService {
   InterstitialAd? _interstitialAd;
   bool _isInterstitialLoaded = false;
   bool _isBannerLoaded = false;
+  bool _bannerLoadFailed = false; // 🔥 Новый флаг
   DateTime? _lastInterstitialShow;
   static const _minInterval = Duration(minutes: 3);
+  static const _bannerLoadTimeout = Duration(seconds: 10); // 🔥 Таймаут 10 сек
 
   Future<void> init() async {
     try {
@@ -25,11 +27,22 @@ class AdService {
       print('✅ Google Ads инициализированы');
     } catch (e) {
       print('❌ Ошибка инициализации: $e');
+      _bannerLoadFailed = true;
     }
   }
 
-  // 🔥 ЗАГРУЗКА БАННЕРА
+  // 🔥 ЗАГРУЗКА БАННЕРА С ТАЙМАУТОМ
   void _loadBanner() {
+    _bannerLoadFailed = false;
+    
+    // Таймаут: если за 10 сек не загрузилось — помечаем как ошибку
+    Future.delayed(_bannerLoadTimeout, () {
+      if (!_isBannerLoaded && _bannerAd == null) {
+        _bannerLoadFailed = true;
+        print('⏰ Таймаут загрузки баннера');
+      }
+    });
+
     _bannerAd = BannerAd(
       adUnitId: _bannerAdUnitId,
       size: AdSize.mediumRectangle,
@@ -37,13 +50,16 @@ class AdService {
       listener: BannerAdListener(
         onAdLoaded: (_) {
           _isBannerLoaded = true;
+          _bannerLoadFailed = false;
           print('✅ Баннер загружен');
         },
         onAdFailedToLoad: (ad, error) {
           _isBannerLoaded = false;
+          _bannerLoadFailed = true;
           print('❌ Ошибка баннера: $error');
           ad.dispose();
-          Future.delayed(const Duration(seconds: 5), _loadBanner);
+          // Пробуем еще раз через 30 сек
+          Future.delayed(const Duration(seconds: 30), _loadBanner);
         },
         onAdOpened: (_) => print('👆 Баннер открыт'),
         onAdClosed: (_) => print('❌ Баннер закрыт'),
@@ -53,19 +69,15 @@ class AdService {
     _bannerAd!.load();
   }
 
-  // 🔥 ПРОВЕРКА: баннер готов?
-  bool get isBannerReady => _isBannerLoaded && _bannerAd != null;
+  bool get isBannerReady => _isBannerLoaded && _bannerAd != null && !_bannerLoadFailed;
+  bool get shouldShowFallback => _bannerLoadFailed || (!_isBannerLoaded && _bannerAd == null);
 
-  // 🔥 ПОЛУЧИТЬ БАННЕР
   BannerAd? getBannerAd() => _bannerAd;
-
-  // 🔥 ВОЗВРАЩАЕМ ВИДЖЕТ БАННЕРА
   Widget? getBannerWidget() {
     if (!isBannerReady) return null;
     return AdWidget(ad: _bannerAd!);
   }
 
-  // 🔥 ЗАГРУЗКА ИНТЕРСТИЦИАЛА
   void _loadInterstitial() {
     InterstitialAd.load(
       adUnitId: _interstitialAdUnitId,
@@ -84,7 +96,6 @@ class AdService {
     );
   }
 
-  // 🔥 ПОКАЗ ИНТЕРСТИЦИАЛА
   void showInterstitial() {
     final now = DateTime.now();
     if (_lastInterstitialShow != null && 
@@ -100,7 +111,7 @@ class AdService {
           _loadInterstitial();
         },
         onAdFailedToShowFullScreenContent: (ad, error) {
-          print('❌ Ошибка показа интерстициала: $error');
+          print('❌ Ошибка показа: $error');
           ad.dispose();
           _loadInterstitial();
         },
@@ -109,8 +120,6 @@ class AdService {
       _isInterstitialLoaded = false;
       _lastInterstitialShow = now;
       print('📊 Интерстициал показан');
-    } else {
-      print('⚠️ Интерстициал ещё не загружен');
     }
   }
 

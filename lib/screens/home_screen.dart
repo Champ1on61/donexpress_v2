@@ -206,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 : SliverGrid(
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      childAspectRatio: 0.65, // 🔥 УМЕНЬШИЛ чтобы карточки не переполнялись
+                      childAspectRatio: 0.65,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
                     ),
@@ -237,7 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
           ),
           
-          // 🔥 БАННЕР GOOGLE ADS (ИСПРАВЛЕННЫЙ)
+          // 🔥 БАННЕР GOOGLE ADS (с таймаутом и fallback)
           SliverToBoxAdapter(
             child: Container(
               height: 250,
@@ -287,7 +287,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 🔥 ОТДЕЛЬНЫЙ МЕТОД ДЛЯ БАННЕРА (безопасный)
+  // 🔥 ОТДЕЛЬНЫЙ МЕТОД ДЛЯ БАННЕРА (с таймаутом и fallback)
   Widget _buildAdBanner() {
     final adService = AdService();
     
@@ -296,25 +296,20 @@ class _HomeScreenState extends State<HomeScreen> {
       return AdWidget(ad: adService.getBannerAd()!);
     }
     
-    // Иначе показываем заглушку с индикатором
+    // Если загрузка не удалась или таймаут — скрываем блок полностью
+    if (adService.shouldShowFallback) {
+      return const SizedBox.shrink(); // 🔥 Никакой бесконечной загрузки!
+    }
+    
+    // Иначе показываем индикатор (но только первые 10 секунд)
     return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 20,
-            height: 20,
-            child: CircularProgressIndicator(
-              color: Color(0xFF9C27B0),
-              strokeWidth: 2,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Загрузка рекламы...',
-            style: TextStyle(color: Colors.grey, fontSize: 12),
-          ),
-        ],
+      child: SizedBox(
+        width: 20,
+        height: 20,
+        child: CircularProgressIndicator(
+          color: Color(0xFF9C27B0),
+          strokeWidth: 2,
+        ),
       ),
     );
   }
