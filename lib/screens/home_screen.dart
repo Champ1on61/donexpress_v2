@@ -3,8 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/product.dart';
 import '../widgets/product_card.dart';
-import '../widgets/rate_dialog.dart'; // 🔥 Новый импорт
+import '../widgets/rate_dialog.dart';
 import '../utils/app_data.dart';
+import '../services/ad_service.dart'; // 🔥 ИМПОРТ РЕКЛАМЫ
 import 'cart_screen.dart';
 import 'product_detail_screen.dart';
 import 'favorites_screen.dart';
@@ -43,10 +44,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadCart();
-    _checkForUnratedOrders(); // 🔥 Проверяем, нужно ли оценить заказ
+    _checkForUnratedOrders();
   }
 
-  // 🔥 ПРОВЕРКА НА НЕОЦЕНЕННЫЕ ЗАКАЗЫ
   void _checkForUnratedOrders() {
     final unratedOrder = AppData().getFirstUnratedCompletedOrder();
     if (unratedOrder != null && mounted) {
@@ -234,7 +234,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 80)),
+          
+          // 🔥 БАННЕР GOOGLE ADS (добавлено)
+          SliverToBoxAdapter(
+            child: Container(
+              height: 250,
+              margin: const EdgeInsets.only(top: 8),
+              color: Colors.grey[100],
+              child: AdService().createBannerAd() ?? 
+                const Center(child: Text('Загрузка рекламы...', style: TextStyle(color: Colors.grey, fontSize: 12))),
+            ),
+          ),
+          
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

@@ -6,7 +6,6 @@ class AdService {
   factory AdService() => _instance;
   AdService._internal();
 
-  // 🔹 ТЕСТОВЫЕ ID AdMob (работают сразу!)
   static const String _appId = 'ca-app-pub-3940256099942544~3347511713';
   static const String _bannerAdUnitId = 'ca-app-pub-3940256099942544/6300978111';
   static const String _interstitialAdUnitId = 'ca-app-pub-3940256099942544/1033173712';
@@ -14,11 +13,17 @@ class AdService {
   BannerAd? _bannerAd;
   InterstitialAd? _interstitialAd;
   bool _isInterstitialLoaded = false;
+  DateTime? _lastInterstitialShow;
+  static const _minInterval = Duration(minutes: 3);
 
   Future<void> init() async {
-    await MobileAds.instance.initialize();
-    _loadInterstitial();
-    print('✅ Google Ads готовы!');
+    try {
+      await MobileAds.instance.initialize();
+      _loadInterstitial();
+      print('✅ Google Ads инициализированы');
+    } catch (e) {
+      print('❌ Ошибка: $e');
+    }
   }
 
   void _loadInterstitial() {
@@ -29,42 +34,53 @@ class AdService {
         onAdLoaded: (ad) {
           _interstitialAd = ad;
           _isInterstitialLoaded = true;
+          print('✅ Интерстициал загружен');
         },
         onAdFailedToLoad: (error) {
-          print('❌ Ошибка: $error');
           _isInterstitialLoaded = false;
+          print('❌ Ошибка загрузки: $error');
         },
       ),
     );
   }
 
   void showInterstitial() {
+    final now = DateTime.now();
+    if (_lastInterstitialShow != null && 
+        now.difference(_lastInterstitialShow!) < _minInterval) return;
+    
     if (_isInterstitialLoaded && _interstitialAd != null) {
-      _interstitialAd!.show();
       _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdDismissedFullScreenContent: (ad) {
           ad.dispose();
           _loadInterstitial();
         },
       );
+      _interstitialAd!.show();
       _isInterstitialLoaded = false;
+      _lastInterstitialShow = now;
+      print('📊 Интерстициал показан');
     }
   }
 
   Widget? createBannerAd() {
-    _bannerAd = BannerAd(
-      adUnitId: _bannerAdUnitId,
-      size: AdSize.mediumRectangle,
-      request: const AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (_) => print('✅ Баннер загружен'),
-        onAdFailedToLoad: (ad, error) {
-          print('❌ Баннер: $error');
-          ad.dispose();
-        },
-      ),
-    );
-    return AdWidget(ad: _bannerAd!);
+    try {
+      _bannerAd = BannerAd(
+        adUnitId: _bannerAdUnitId,
+        size: AdSize.mediumRectangle,
+        request: const AdRequest(),
+        listener: BannerAdListener(
+          onAdLoaded: (_) => print('✅ Баннер загружен'),
+          onAdFailedToLoad: (ad, error) {
+            print('❌ Ошибка баннера: $error');
+            ad.dispose();
+          },
+        ),
+      );
+      return AdWidget(ad: _bannerAd!);
+    } catch (e) {
+      return null;
+    }
   }
 
   void dispose() {
